@@ -1,0 +1,33 @@
+{
+	"databases": [
+		{
+			"url": "postgres://charlie:root@127.0.0.1:5432/configuration?sslmode=disable",
+			"options": {
+				"maxOpenConns": 1,
+				"maxIdleConns": 1,
+				"connMaxIdleTime": "10s",
+				"connMaxLifeTime": "10s"
+			}
+		},
+		{
+			"url": "postgres://charlie:root@127.0.0.1:543222221111/configuration1?sslmode=disable",
+			"options": {
+				"maxOpenConns": 1,
+				"maxIdleConns": 1,
+				"connMaxIdleTime": "10s",
+				"connMaxLifeTime": "10s"
+			}
+		}
+	],
+	"redis": {
+		"alias": "config",
+		"addr": "127.0.0.1:6379",
+		"clusters": ["cluster1", "cluster2"],
+		"username": "username",
+		"password": "password",
+		"database": "1",
+		"maxActive": 10,
+		"timeout": "30s",
+		"prefix": "prefix"
+	}
+}

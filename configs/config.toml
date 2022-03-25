@@ -1,0 +1,42 @@
+## No alias is default database
+[[databases]]
+alias="config"
+url="postgres://charlie:root@127.0.0.1:5432/configuration?sslmode=disable"
+
+[databases.options]
+maxOpenConns=1
+maxIdleConns=1
+connMaxIdleTime="10s"
+connMaxLifeTime="10s"
+
+[[databases]]
+alias="config"
+url="postgres://charlie:root@127.0.0.1:54321/configuration?sslmode=disable"
+
+[databases.options]
+maxOpenConns=2
+maxIdleConns=2
+connMaxIdleTime="20s"
+connMaxLifeTime="20s"
+
+[redis]
+addrs = [":6379"]
+db = 0
+#password = "Password"
+#maxRetries = 10
+#minRetryBackoff = "1s"
+#maxRetryBackoff = "1s"
+#dialTimeout = "1s"
+#readTimeout = "1s"
+#writeTimeout = "1s"
+#poolSize = 10
+#minIdleConns = 10
+#maxConnAge = "10s"
+#poolTimeout = "10s"
+#idleTimeout = "10s"
+#idleCheckFrequency = "10s"
+#maxRedirects = 10
+#readOnly = true
+#routeByLatency = true
+#routeRandomly = true
+#masterName = "MasterName"
