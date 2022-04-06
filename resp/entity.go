@@ -40,18 +40,30 @@ func NewEntity(opts ...EntityOp) *ResponseEntity {
 	return re
 }
 
-func Fail(code Code, message string) *ResponseEntity {
+func Msg(code Code, message string) *ResponseEntity {
 	return NewEntity(code, WithMessage(message))
 }
 
 func FailMsg(msg string) *ResponseEntity {
-	return Fail(CodeBaseErr, msg)
+	return Msg(CodeBaseErr, msg)
+}
+
+func FailParams(msg string) *ResponseEntity {
+	return Msg(CodeParamErr, msg)
 }
 
 func Failf(messageId string, template map[string]interface{}) *ResponseEntity {
 	return NewEntity(CodeBaseErr, WithTemplate(messageId, template))
 }
 
+func SuccessMsg() *ResponseEntity {
+	return Success(nil)
+}
+
 func Success(payload interface{}) *ResponseEntity {
-	return NewEntity(CodeSuccess, WithMessage("操作成功"), WithPayload(payload))
+	entity := NewEntity(CodeSuccess, WithMessage("操作成功"))
+	if payload != nil {
+		entity.Payload = payload
+	}
+	return entity
 }

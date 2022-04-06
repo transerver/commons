@@ -23,13 +23,25 @@ func Bytes(data string) []byte {
 	}))
 }
 
-func NotBlank(args ...string) bool {
-	for _, s := range args {
-		if len(s) == 0 {
-			return false
-		}
+func Blank(arg string) bool {
+	if len(arg) == 0 {
+		return true
+	}
 
-		if strings.TrimSpace(s) == "" {
+	if strings.TrimSpace(arg) == "" {
+		return true
+	}
+	return false
+}
+
+func NotBlank(arg string) bool {
+	return !Blank(arg)
+}
+
+// NotBlanks returns true if args has any not empty
+func NotBlanks(args ...string) bool {
+	for _, s := range args {
+		if Blank(s) {
 			return false
 		}
 	}
@@ -37,6 +49,19 @@ func NotBlank(args ...string) bool {
 	return true
 }
 
-func AnyBlank(args ...string) bool {
-	return !NotBlank(args...)
+// Blanks returns true if args has any empty
+func Blanks(args ...string) bool {
+	return !NotBlanks(args...)
+}
+
+// BlanksAll returns true if args is all empty
+func BlanksAll(args ...string) bool {
+	for _, s := range args {
+		blank := Blank(s)
+		if !blank {
+			return false
+		}
+	}
+
+	return true
 }

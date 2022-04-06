@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"net"
 	"net/http"
+	"net/netip"
 	"strings"
 )
 
@@ -24,9 +24,9 @@ func FetchIp(r *http.Request) string {
 		ip = strings.SplitAfterN(ip, ",", 2)[0]
 	}
 
-	host, _, err := net.SplitHostPort(ip)
-	if err != nil {
+	addrPort, err := netip.ParseAddrPort(ip)
+	if err != nil || !addrPort.IsValid() {
 		return ""
 	}
-	return host
+	return addrPort.Addr().String()
 }

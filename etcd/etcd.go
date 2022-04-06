@@ -111,8 +111,9 @@ func (c *etcdClient) getEndpoints() []string {
 
 	endpoints := os.Getenv("ETCD_ENDPOINTS")
 	if len(endpoints) == 0 {
-		logger.Warnf(color.HiYellow.Sprintf("can't find etcd endpoints in environment, use default address[%s]", endpoints))
-		return []string{"127.0.0.1:2379"}
+		dfe := []string{"127.0.0.1:2379"}
+		logger.Warnf(color.HiYellow.Sprintf("can't find etcd endpoints in environment, use default address[%v]", dfe))
+		return dfe
 	}
 	return strings.Split(endpoints, ",")
 }
