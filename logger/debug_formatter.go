@@ -22,6 +22,10 @@ func (f *DebugFormatter) init() {
 		if len(f.Config.TimestampFormat) == 0 {
 			f.Config.TimestampFormat = "2006-01-02 15:04:05.000000"
 		}
+
+		for _, l := range AllLevels {
+			f.initLevelColor(l)
+		}
 	})
 }
 
@@ -34,7 +38,7 @@ func (f *DebugFormatter) Format(entry *Entry) ([]byte, error) {
 		b = &bytes.Buffer{}
 	}
 
-	cf := f.levelColor(entry)
+	cf := f.colors[entry.Level]
 	_, _ = cf.Fprintf(b, "[%s]", f.upperLevel(entry.Level))
 	_, _ = cf.Fprintf(b, " [%s]", entry.Time.Format(f.Config.TimestampFormat))
 
@@ -113,13 +117,9 @@ func (f *DebugFormatter) upperLevel(level Level) string {
 	}
 }
 
-func (f *DebugFormatter) levelColor(entry *Entry) *color.Color {
-	if c, ok := f.colors[entry.Level]; ok {
-		return c
-	}
-
+func (f *DebugFormatter) initLevelColor(level Level) {
 	var lc color.Attribute
-	switch entry.Level {
+	switch level {
 	case DebugLevel, TraceLevel:
 		lc = color.FgWhite
 	case WarnLevel:
@@ -130,6 +130,5 @@ func (f *DebugFormatter) levelColor(entry *Entry) *color.Color {
 		lc = color.FgCyan
 	}
 	c := color.New(lc, color.Bold)
-	f.colors[entry.Level] = c
-	return c
+	f.colors[level] = c
 }
