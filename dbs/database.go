@@ -179,7 +179,7 @@ func FetchDB(dbName string) *Database {
 
 	config := configs.FetchDBConfigWithName(dbName)
 	db = NewDatabase(WithConfig(config))
-	err := db.connect()
+	err := db.Connect()
 	if err != nil {
 		return nil
 	}
@@ -192,7 +192,7 @@ func FetchDB(dbName string) *Database {
 	return nil
 }
 
-func (db *Database) connect() error {
+func (db *Database) Connect() error {
 	config := db.config
 	if config == nil {
 		return errors.New(fmt.Sprintf("can't find database config with alias[%s]", config.DBName))
