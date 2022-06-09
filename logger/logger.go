@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"github.com/transerver/commons/utils"
 	"io"
 	"log"
 	"runtime"
@@ -130,156 +131,176 @@ func SetupLogger(logger *logrus.Logger) {
 	log.SetOutput(logger.Writer())
 }
 
-func (logger *Logger) Log(level Level, args ...interface{}) {
-	logger.withField().Log(level, args...)
+func (l *Logger) Log(level Level, args ...interface{}) {
+	l.withField().Log(level, args...)
 }
 
-func (logger *Logger) Logf(level Level, format string, args ...interface{}) {
-	logger.withField().Logf(level, format, args...)
+func (l *Logger) Logf(level Level, format string, args ...interface{}) {
+	l.withField().Logf(level, format, args...)
 }
 
-func (logger *Logger) withField() *Entry {
-	return logger.WithField("", nil)
+func (l *Logger) withField() *Entry {
+	return l.WithField("", nil)
 }
 
 // WithField allocates a new entry and adds a field to it.
 // Debug, Print, Info, Warn, Error, Fatal or Panic must be then applied to
 // this new returned entry.
 // If you want multiple fields, use `WithFields`.
-func (logger *Logger) WithField(key string, value interface{}) *Entry {
-	if len(logger.Prefix) == 0 {
-		if len(key) == 0 && value == nil {
-			return logrus.NewEntry(logger.Logger)
+func (l *Logger) WithField(key string, value interface{}) *Entry {
+	if len(key) == 0 && value == nil {
+		if utils.NotBlank(l.Prefix) {
+			return l.Logger.WithFields(Fields{l.Prefix: nil, key: value})
 		}
-		return logger.Logger.WithField(key, value)
-	} else if len(key) == 0 && value == nil {
-		return logger.Logger.WithField(logger.Prefix, nil)
+		return logrus.NewEntry(l.Logger)
+	}
+
+	if value != nil {
+
+	}
+
+	if len(l.Prefix) == 0 {
+		if len(key) == 0 && value == nil {
+			return logrus.NewEntry(l.Logger)
+		}
+		return l.Logger.WithField(key, value)
+	} else if value == nil {
+		prefix := l.Prefix
+		if len(key) != 0 {
+			prefix = key
+		}
+		return l.Logger.WithField(prefix, nil)
 	} else {
-		return logger.Logger.WithFields(Fields{logger.Prefix: nil, key: value})
+		return l.Logger.WithFields(Fields{l.Prefix: nil, key: value})
 	}
 }
 
 // WithFields Adds a struct of fields to the log entry. All it does is call `WithField` for each `Field`.
-func (logger *Logger) WithFields(fields Fields) *Entry {
-	if len(logger.Prefix) != 0 {
-		fields[logger.Prefix] = nil
+func (l *Logger) WithFields(fields Fields) *Entry {
+	if len(l.Prefix) != 0 {
+		fields[l.Prefix] = nil
 	}
-	return logger.Logger.WithFields(fields)
+	return l.Logger.WithFields(fields)
 }
 
-func (logger *Logger) Tracef(format string, args ...interface{}) {
-	logger.Logf(TraceLevel, format, args...)
+// WithPrefix Adds a struct of fields to the log entry. All it does is call `WithField` for each `Field`.
+func (l *Logger) WithPrefix(prefix string) *Entry {
+	return l.WithField(prefix, nil)
 }
 
-func (logger *Logger) Debugf(format string, args ...interface{}) {
-	logger.Logf(DebugLevel, format, args...)
+func (l *Logger) Tracef(format string, args ...interface{}) {
+	l.Logf(TraceLevel, format, args...)
 }
 
-func (logger *Logger) Infof(format string, args ...interface{}) {
-	logger.Logf(InfoLevel, format, args...)
+func (l *Logger) Debugf(format string, args ...interface{}) {
+	l.Logf(DebugLevel, format, args...)
 }
 
-func (logger *Logger) Printf(format string, args ...interface{}) {
-	logger.Infof(format, args...)
+func (l *Logger) Infof(format string, args ...interface{}) {
+	l.Logf(InfoLevel, format, args...)
 }
 
-func (logger *Logger) Warnf(format string, args ...interface{}) {
-	logger.Logf(WarnLevel, format, args...)
+func (l *Logger) Printf(format string, args ...interface{}) {
+	l.Infof(format, args...)
 }
 
-func (logger *Logger) Warningf(format string, args ...interface{}) {
-	logger.Warnf(format, args...)
+func (l *Logger) Warnf(format string, args ...interface{}) {
+	l.Logf(WarnLevel, format, args...)
 }
 
-func (logger *Logger) Errorf(format string, args ...interface{}) {
-	logger.Logf(ErrorLevel, format, args...)
+func (l *Logger) Warningf(format string, args ...interface{}) {
+	l.Warnf(format, args...)
 }
 
-func (logger *Logger) Fatalf(format string, args ...interface{}) {
-	logger.Logf(FatalLevel, format, args...)
-	logger.Exit(1)
+func (l *Logger) Errorf(format string, args ...interface{}) {
+	l.Logf(ErrorLevel, format, args...)
 }
 
-func (logger *Logger) Panicf(format string, args ...interface{}) {
-	logger.Logf(PanicLevel, format, args...)
+func (l *Logger) Fatalf(format string, args ...interface{}) {
+	l.Logf(FatalLevel, format, args...)
+	l.Exit(1)
 }
 
-func (logger *Logger) Trace(args ...interface{}) {
-	logger.Log(TraceLevel, args...)
+func (l *Logger) Panicf(format string, args ...interface{}) {
+	l.Logf(PanicLevel, format, args...)
 }
 
-func (logger *Logger) Debug(args ...interface{}) {
-	logger.Log(DebugLevel, args...)
+func (l *Logger) Trace(args ...interface{}) {
+	l.Log(TraceLevel, args...)
 }
 
-func (logger *Logger) Info(args ...interface{}) {
-	logger.Log(InfoLevel, args...)
+func (l *Logger) Debug(args ...interface{}) {
+	l.Log(DebugLevel, args...)
 }
 
-func (logger *Logger) Print(args ...interface{}) {
-	logger.Info(args...)
+func (l *Logger) Info(args ...interface{}) {
+	l.Log(InfoLevel, args...)
 }
 
-func (logger *Logger) Warn(args ...interface{}) {
-	logger.Log(WarnLevel, args...)
+func (l *Logger) Print(args ...interface{}) {
+	l.Info(args...)
 }
 
-func (logger *Logger) Warning(args ...interface{}) {
-	logger.Warn(args...)
+func (l *Logger) Warn(args ...interface{}) {
+	l.Log(WarnLevel, args...)
 }
 
-func (logger *Logger) Error(args ...interface{}) {
-	logger.Log(ErrorLevel, args...)
+func (l *Logger) Warning(args ...interface{}) {
+	l.Warn(args...)
 }
 
-func (logger *Logger) Fatal(args ...interface{}) {
-	logger.Log(FatalLevel, args...)
-	logger.Exit(1)
+func (l *Logger) Error(args ...interface{}) {
+	l.Log(ErrorLevel, args...)
 }
 
-func (logger *Logger) Panic(args ...interface{}) {
-	logger.Log(PanicLevel, args...)
+func (l *Logger) Fatal(args ...interface{}) {
+	l.Log(FatalLevel, args...)
+	l.Exit(1)
 }
 
-func (logger *Logger) Logln(level Level, args ...interface{}) {
-	logger.withField().Logln(level, args...)
+func (l *Logger) Panic(args ...interface{}) {
+	l.Log(PanicLevel, args...)
 }
 
-func (logger *Logger) Traceln(args ...interface{}) {
-	logger.Logln(TraceLevel, args...)
+func (l *Logger) Logln(level Level, args ...interface{}) {
+	l.withField().Logln(level, args...)
 }
 
-func (logger *Logger) Debugln(args ...interface{}) {
-	logger.Logln(DebugLevel, args...)
+func (l *Logger) Traceln(args ...interface{}) {
+	l.Logln(TraceLevel, args...)
 }
 
-func (logger *Logger) Infoln(args ...interface{}) {
-	logger.Logln(InfoLevel, args...)
+func (l *Logger) Debugln(args ...interface{}) {
+	l.Logln(DebugLevel, args...)
 }
 
-func (logger *Logger) Println(args ...interface{}) {
-	logger.Infoln(args...)
+func (l *Logger) Infoln(args ...interface{}) {
+	l.Logln(InfoLevel, args...)
 }
 
-func (logger *Logger) Warnln(args ...interface{}) {
-	logger.Logln(WarnLevel, args...)
+func (l *Logger) Println(args ...interface{}) {
+	l.Infoln(args...)
 }
 
-func (logger *Logger) Warningln(args ...interface{}) {
-	logger.Warnln(args...)
+func (l *Logger) Warnln(args ...interface{}) {
+	l.Logln(WarnLevel, args...)
 }
 
-func (logger *Logger) Errorln(args ...interface{}) {
-	logger.Logln(ErrorLevel, args...)
+func (l *Logger) Warningln(args ...interface{}) {
+	l.Warnln(args...)
 }
 
-func (logger *Logger) Fatalln(args ...interface{}) {
-	logger.Logln(FatalLevel, args...)
-	logger.Exit(1)
+func (l *Logger) Errorln(args ...interface{}) {
+	l.Logln(ErrorLevel, args...)
 }
 
-func (logger *Logger) Panicln(args ...interface{}) {
-	logger.Logln(PanicLevel, args...)
+func (l *Logger) Fatalln(args ...interface{}) {
+	l.Logln(FatalLevel, args...)
+	l.Exit(1)
+}
+
+func (l *Logger) Panicln(args ...interface{}) {
+	l.Logln(PanicLevel, args...)
 }
 
 var (

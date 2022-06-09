@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/transerver/commons/utils"
 	"strings"
 	"sync"
 )
@@ -51,7 +52,7 @@ func (f *DebugFormatter) Format(entry *Entry) ([]byte, error) {
 			}
 		}
 
-		if prefix {
+		if prefix && utils.NotBlank(k) {
 			_, _ = cf.Fprintf(b, " %s:", f.underLineColor.Sprintf("[%s]", k))
 			prefixLen = len(k) + 4
 			delete(entry.Data, k)
